@@ -18,18 +18,21 @@ namespace Helper
         /// <param name="cancellationToken">任务取消标记</param>
         public static void RunParallel(List<Action> actions, int maxTaskCount, CancellationToken? cancellationToken = null)
         {
-            CancellationToken cancelToken = cancellationToken ?? CancellationToken.None;
-            List<Task> tasks = new List<Task>();
-            foreach (var item in actions)
-            {
-                if (cancelToken.IsCancellationRequested) break;
-                tasks.Add(Task.Run(item, cancelToken));
-                if (tasks.Count > maxTaskCount)
-                {
-                    int index = Task.WaitAny(tasks.ToArray(), cancelToken);
-                    tasks[index] = Task.Run(item, cancelToken);
-                }
-            }
+            RunParallel<Action>(actions, x => x(), maxTaskCount, cancellationToken);
+            //CancellationToken cancelToken = cancellationToken ?? CancellationToken.None;
+            //List<Task> tasks = new List<Task>();
+            //foreach (var item in actions)
+            //{
+            //    if (cancelToken.IsCancellationRequested) break;
+            //    if (tasks.Count > maxTaskCount)
+            //    {
+            //        int index = Task.WaitAny(tasks.ToArray(), cancelToken);
+            //        tasks[index] = Task.Run(item, cancelToken);
+            //        continue;
+            //    }
+            //    tasks.Add(Task.Run(item, cancelToken));
+            //}
+            //Task.WaitAll(tasks.ToArray());
         }
 
         /// <summary>
@@ -47,13 +50,15 @@ namespace Helper
             foreach (var item in source)
             {
                 if (cancelToken.IsCancellationRequested) break;
-                tasks.Add(Task.Run(() => action(item), cancelToken));
                 if (tasks.Count > maxTaskCount)
                 {
                     int index = Task.WaitAny(tasks.ToArray(), cancelToken);
                     tasks[index] = Task.Run(() => action(item), cancelToken);
+                    continue;
                 }
+                tasks.Add(Task.Run(() => action(item), cancelToken));
             }
+            Task.WaitAll(tasks.ToArray());
         }
     }
 }

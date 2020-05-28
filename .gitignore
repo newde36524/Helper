@@ -3,3 +3,7 @@
 ################################################################################
 
 /Helper/obj
+/Helper/bin/Debug/netcoreapp2.0
+/ConsoleApp1/obj
+/ConsoleApp1/bin/Debug/netcoreapp2.0
+/.vs/Helper
